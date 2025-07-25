@@ -2,10 +2,10 @@
   "name": "diabetes-management-system",
   "version": "1.0.0",
   "description": "Medical AI system for diabetes management and transplant medicine",
-  "main": "src/js/backend.js",
+  "main": "js/backend.js",
   "scripts": {
-    "start": "node src/js/backend.js",
-    "dev": "nodemon src/js/backend.js",
+    "start": "node js/backend.js",
+    "dev": "nodemon js/backend.js",
     "build": "echo 'No build step required'"
   },
   "dependencies": {
@@ -18,6 +18,6 @@
     "nodemon": "^3.0.1"
   },
   "engines": {
-    "node": "18.x"
+    "node": "20.x"
   }
 }

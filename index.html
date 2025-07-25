@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diabetes Assessment System - ADA Guidelines</title>
+    <link rel="stylesheet" href="css/style.css">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+</head>
+<body>
+    <div class="container">
+        <!-- Header Section -->
+        <div class="header">
+            <h1>🩺 Diabetes Assessment System</h1>
+            <p class="subtitle">Professional Medical Calculator with ADA Guidelines & AI Assistant</p>
+            <div id="aiStatus" class="status-indicator status-offline">
+                🔴 AI Connecting...
+            </div>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="main-content">
+            <!-- Calculator Section -->
+            <div class="calculator-section">
+                <h2 class="section-title">ADA Diabetes Assessment</h2>
+                
+                <!-- Remove calculator tabs - just diabetes content -->
+                <div class="input-group">
+                    <label for="glucose">Blood Glucose (mg/dL):</label>
+                    <input type="number" id="glucose" placeholder="Enter glucose level">
+                </div>
+                
+                <div class="input-group">
+                    <label for="hba1c">HbA1c (%):</label>
+                    <input type="number" id="hba1c" step="0.1" placeholder="Enter HbA1c level">
+                </div>
+                
+                <div class="input-group">
+                    <label for="weight">Weight (kg):</label>
+                    <input type="number" id="weight" placeholder="Enter weight">
+                </div>
+                
+                <div class="input-group">
+                    <label for="height">Height (cm):</label>
+                    <input type="number" id="height" placeholder="Enter height">
+                </div>
+                
+                <button class="btn" onclick="calculateBMI()">Calculate Diabetes Assessment</button>
+                
+                <div id="calculatorResult" class="result" style="display: none;">
+                    <!-- Results will appear here -->
+                </div>
+            </div>
+
+            <!-- Chat Section -->
+            <div class="chat-section">
+                <h2 class="section-title">Diabetes AI Assistant</h2>
+                
+                <div class="chat-status">
+                    💡 Ask about diabetes management, blood sugar control, or ADA guidelines
+                </div>
+                
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message assistant">
+                        <strong>🤖 Diabetes Assistant:</strong> Hello! I'm your diabetes management specialist, trained on American Diabetes Association guidelines. How can I help with your diabetes care today?
+                    </div>
+                </div>
+                
+                <div class="chat-input-container">
+                    <input type="text" id="userMessage" placeholder="Ask about blood sugar, HbA1c, diabetes medications, or ADA guidelines..." 
+                           onkeypress="if(event.key==='Enter') sendMessage()">
+                    <button class="send-btn" onclick="sendMessage()">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // AI Status Check
+        async function checkAIStatus() {
+            try {
+                const response = await fetch('/api/health');
+                const data = await response.json();
+                const statusElement = document.getElementById('aiStatus');
+                
+                if (data.status === 'healthy') {
+                    statusElement.className = 'status-indicator status-online';
+                    statusElement.innerHTML = '✅ AI Connected & Ready';
+                } else {
+                    statusElement.className = 'status-indicator status-offline';
+                    statusElement.innerHTML = '⚠️ AI Service Issues';
+                }
+            } catch (error) {
+                document.getElementById('aiStatus').innerHTML = '🔴 AI Offline';
+            }
+        }
+
+        // Enhanced Diabetes Calculator
+        function calculateBMI() {
+            const glucose = document.getElementById('glucose').value;
+            const hba1c = document.getElementById('hba1c').value;
+            const weight = document.getElementById('weight').value;
+            const height = document.getElementById('height').value;
+            
+            let result = '<h3>📊 ADA Diabetes Assessment Results:</h3>';
+            
+            if (weight && height) {
+                const heightM = height / 100;
+                const bmi = (weight / (heightM * heightM)).toFixed(1);
+                result += `<div class="assessment-section">`;
+                result += `<h4>📏 Body Mass Index</h4>`;
+                result += `<p><strong>BMI:</strong> ${bmi} kg/m²</p>`;
+                
+                if (bmi < 18.5) result += '<p class="status-underweight">🔹 Underweight - Nutritional consultation recommended</p>';
+                else if (bmi < 25) result += '<p class="status-normal">✅ Normal weight - Continue healthy lifestyle</p>';
+                else if (bmi < 30) result += '<p class="status-overweight">⚠️ Overweight - Weight management beneficial for diabetes control</p>';
+                else result += '<p class="status-obese">🚨 Obesity - Weight loss critical for diabetes management</p>';
+                result += `</div>`;
+            }
+            
+            if (glucose) {
+                const glucoseNum = parseFloat(glucose);
+                result += `<div class="assessment-section">`;
+                result += `<h4>🩸 Blood Glucose Analysis</h4>`;
+                result += `<p><strong>Current Glucose:</strong> ${glucose} mg/dL</p>`;
+                
+                if (glucoseNum < 70) result += '<p class="status-critical">🚨 HYPOGLYCEMIA - Treat immediately with 15g carbs</p>';
+                else if (glucoseNum <= 130) result += '<p class="status-normal">✅ Target range (ADA: 80-130 mg/dL preprandial)</p>';
+                else if (glucoseNum <= 180) result += '<p class="status-elevated">⚠️ Elevated - Review timing and medications</p>';
+                else result += '<p class="status-high">🚨 High - Contact healthcare provider promptly</p>';
+                result += `</div>`;
+            }
+            
+            if (hba1c) {
+                const hba1cNum = parseFloat(hba1c);
+                result += `<div class="assessment-section">`;
+                result += `<h4>📈 HbA1c Analysis (3-month average)</h4>`;
+                result += `<p><strong>HbA1c:</strong> ${hba1c}%</p>`;
+                
+                if (hba1cNum < 5.7) result += '<p class="status-normal">✅ Normal (ADA: <5.7%)</p>';
+                else if (hba1cNum < 6.5) result += '<p class="status-prediabetes">⚠️ Prediabetes (ADA: 5.7-6.4%) - Lifestyle intervention recommended</p>';
+                else if (hba1cNum < 7) result += '<p class="status-controlled">✅ Good diabetes control (ADA target: <7%)</p>';
+                else if (hba1cNum < 8) result += '<p class="status-suboptimal">⚠️ Suboptimal control - Treatment intensification needed</p>';
+                else result += '<p class="status-poor">🚨 Poor control - Urgent diabetes management review required</p>';
+                result += `</div>`;
+            }
+            
+            result += '<div class="disclaimer">';
+            result += '<p><em>⚠️ This assessment is based on ADA guidelines. Always consult your healthcare provider or endocrinologist for personalized diabetes care.</em></p>';
+            result += '</div>';
+            
+            const resultDiv = document.getElementById('calculatorResult');
+            resultDiv.innerHTML = result;
+            resultDiv.style.display = 'block';
+        }
+
+        // Chat Functions (same as before)
+        async function sendMessage() {
+            const messageInput = document.getElementById('userMessage');
+            const message = messageInput.value.trim();
+            
+            if (!message) return;
+            
+            addMessage(message, 'user');
+            messageInput.value = '';
+            
+            const typingDiv = addMessage('AI is thinking...', 'typing');
+            
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message })
+                });
+                
+                const data = await response.json();
+                typingDiv.remove();
+                addMessage(`🤖 Diabetes Assistant: ${data.response}`, 'assistant');
+                
+            } catch (error) {
+                typingDiv.remove();
+                addMessage('🤖 Diabetes Assistant: ⚠️ Sorry, I encountered an error. Please try again.', 'assistant');
+            }
+        }
+
+        function addMessage(content, type) {
+            const messagesDiv = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            messageDiv.innerHTML = content;
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            return messageDiv;
+        }
+
+        // Initialize
+        checkAIStatus();
+        setInterval(checkAIStatus, 30000);
+    </script>
+</body>
+</html>
